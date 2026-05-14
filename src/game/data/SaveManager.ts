@@ -1,8 +1,8 @@
 import { LEVELS } from "../levels";
 import { createDefaultSave, mergeSaveData } from "../utils/scoring";
-import type { LevelSave, SaveData } from "../utils/types";
+import type { EndlessSave, LevelSave, SaveData } from "../utils/types";
 
-const SAVE_KEY = "mechanical-ball-run.save.v1";
+const SAVE_KEY = "drop-merge.save.v1";
 
 export class SaveManager {
   private static cached: SaveData | null = null;
@@ -29,23 +29,36 @@ export class SaveManager {
     this.persist(this.cached);
   }
 
-  static updateLevel(levelId: number, elapsed: number, stars: 1 | 2 | 3): LevelSave {
+  static updateLevel(levelId: number, stepsUsed: number, stars: 1 | 2 | 3): LevelSave {
     const save = this.load();
     const current = save.levels[levelId] ?? {
       completed: false,
-      bestTime: null,
+      bestSteps: null,
       stars: 0
     };
 
-    const bestTime = current.bestTime === null ? elapsed : Math.min(current.bestTime, elapsed);
+    const bestSteps = current.bestSteps === null ? stepsUsed : Math.min(current.bestSteps, stepsUsed);
     const updated: LevelSave = {
       completed: true,
-      bestTime,
+      bestSteps,
       stars: Math.max(current.stars, stars) as LevelSave["stars"]
     };
 
     save.levels[levelId] = updated;
     save.unlockedLevel = Math.min(Math.max(save.unlockedLevel, levelId + 1), LEVELS.length);
+    this.save(save);
+    return updated;
+  }
+
+  static updateEndless(score: number, bestTile: number): EndlessSave {
+    const save = this.load();
+    const updated: EndlessSave = {
+      bestScore: Math.max(save.endless.bestScore, score),
+      bestTile: Math.max(save.endless.bestTile, bestTile),
+      gamesPlayed: save.endless.gamesPlayed + 1
+    };
+
+    save.endless = updated;
     this.save(save);
     return updated;
   }

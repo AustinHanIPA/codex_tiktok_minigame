@@ -1,14 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { createDefaultSave, getStarsForTime, mergeSaveData } from "./scoring";
+import { createDefaultSave, getStarsForSteps, mergeSaveData } from "./scoring";
 
 describe("scoring", () => {
-  it("maps elapsed time to stars", () => {
-    const starTimes = { three: 10, two: 20, one: 30 };
+  it("maps used steps to stars", () => {
+    const starSteps = { three: 3, two: 6, one: 9 };
 
-    expect(getStarsForTime(9.9, starTimes)).toBe(3);
-    expect(getStarsForTime(18, starTimes)).toBe(2);
-    expect(getStarsForTime(28, starTimes)).toBe(1);
-    expect(getStarsForTime(31, starTimes)).toBe(0);
+    expect(getStarsForSteps(3, starSteps)).toBe(3);
+    expect(getStarsForSteps(5, starSteps)).toBe(2);
+    expect(getStarsForSteps(8, starSteps)).toBe(1);
+    expect(getStarsForSteps(10, starSteps)).toBe(0);
   });
 
   it("creates and merges save data for all levels", () => {
@@ -17,15 +17,17 @@ describe("scoring", () => {
       {
         unlockedLevel: 99,
         levels: {
-          2: { completed: true, bestTime: 12.4, stars: 3 }
+          2: { completed: true, bestSteps: 4, stars: 3 }
         }
       },
       10
     );
 
     expect(Object.keys(defaults.levels)).toHaveLength(10);
+    expect(defaults.endless.bestScore).toBe(0);
     expect(merged.unlockedLevel).toBe(10);
-    expect(merged.levels[2].bestTime).toBe(12.4);
+    expect(merged.levels[2].bestSteps).toBe(4);
     expect(merged.levels[1].completed).toBe(false);
+    expect(merged.endless.gamesPlayed).toBe(0);
   });
 });

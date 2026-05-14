@@ -2,7 +2,7 @@ import Phaser from "phaser";
 import { EventTracker } from "../data/EventTracker";
 import { SaveManager } from "../data/SaveManager";
 import { PlatformService } from "../platform/PlatformService";
-import { COLORS, DEPTHS } from "../utils/constants";
+import { BLOCK_COLORS, COLORS, DEPTHS } from "../utils/constants";
 import { createButton, createScreenTitle, drawToyBackground } from "../ui/UiFactory";
 
 export class MenuScene extends Phaser.Scene {
@@ -14,29 +14,31 @@ export class MenuScene extends Phaser.Scene {
     drawToyBackground(this);
     EventTracker.track("game_start", { source: "menu" });
 
-    this.addGear(154, 376, 72, COLORS.yellow);
-    this.addGear(560, 326, 54, COLORS.green);
-    this.add.circle(360, 438, 92, COLORS.ink).setDepth(DEPTHS.board);
-    this.add.circle(360, 438, 72, 0x6ad7ff).setDepth(DEPTHS.board + 1);
-    this.add.circle(332, 412, 13, 0xffffff, 0.85).setDepth(DEPTHS.board + 2);
+    this.addPreviewBoard();
 
-    createScreenTitle(this, "机械球球", "点击、拖拽、旋转机关，把小球送进终点");
+    createScreenTitle(this, "方块合合合", "掉落方块，连锁合成目标数字");
 
     const save = SaveManager.load();
     const continueLevel = Math.min(save.unlockedLevel, 10);
 
-    createButton(this, 360, 670, "开始闯关", () => this.scene.start("LevelSelectScene"), {
+    createButton(this, 360, 650, "开始挑战", () => this.scene.start("LevelSelectScene"), {
       width: 340,
       height: 78,
       fill: COLORS.primary
     });
-    createButton(this, 360, 770, `继续第 ${continueLevel} 关`, () => this.scene.start("PlayScene", { levelId: continueLevel }), {
+    createButton(this, 360, 748, "无尽模式", () => this.scene.start("EndlessScene"), {
+      width: 340,
+      height: 72,
+      fill: COLORS.blue,
+      textColor: "#263241"
+    });
+    createButton(this, 360, 840, `继续第 ${continueLevel} 关`, () => this.scene.start("PlayScene", { levelId: continueLevel }), {
       width: 340,
       height: 72,
       fill: COLORS.green,
       textColor: "#263241"
     });
-    createButton(this, 360, 864, "设置", () => this.openSettings(), {
+    createButton(this, 360, 932, "设置", () => this.openSettings(), {
       width: 340,
       height: 72,
       fill: COLORS.panel,
@@ -44,7 +46,7 @@ export class MenuScene extends Phaser.Scene {
     });
 
     this.add
-      .text(360, 1030, "MVP 原型：10 个关卡 / 5 种机关 / 本地存档", {
+      .text(360, 1072, `MVP 原型：10 个残局关卡 / 无尽最高 ${save.endless.bestScore} / 广告分享 Mock`, {
         color: "#65758b",
         fontSize: "22px",
         fontStyle: "700",
@@ -109,15 +111,54 @@ export class MenuScene extends Phaser.Scene {
     void PlatformService.getInstance().getLaunchOptions();
   }
 
-  private addGear(x: number, y: number, radius: number, color: number): void {
-    const gear = this.add.star(x, y, 10, radius * 0.72, radius, color).setDepth(DEPTHS.board);
-    gear.setStrokeStyle(4, COLORS.ink, 0.85);
+  private addPreviewBoard(): void {
+    const board = this.add.rectangle(360, 430, 390, 252, COLORS.board).setDepth(DEPTHS.board);
+    board.setStrokeStyle(5, COLORS.ink, 0.18);
+
+    const values = [
+      [0, 2, 0, 4],
+      [2, 4, 8, 0],
+      [16, 8, 4, 2]
+    ];
+
+    for (let row = 0; row < values.length; row += 1) {
+      for (let col = 0; col < values[row].length; col += 1) {
+        const x = 224 + col * 90;
+        const y = 354 + row * 76;
+        const value = values[row][col];
+        const fill = value === 0 ? COLORS.boardCell : (BLOCK_COLORS[value]?.fill ?? COLORS.primary);
+        const textColor = value === 0 ? "#8f7a62" : (BLOCK_COLORS[value]?.text ?? "#ffffff");
+        this.add.rectangle(x, y, 74, 62, fill).setStrokeStyle(2, COLORS.ink, 0.12).setDepth(DEPTHS.board + 1);
+
+        if (value > 0) {
+          this.add
+            .text(x, y, `${value}`, {
+              color: textColor,
+              fontSize: "28px",
+              fontStyle: "900"
+            })
+            .setOrigin(0.5)
+            .setDepth(DEPTHS.board + 2);
+        }
+      }
+    }
+
+    const falling = this.add.rectangle(360, 276, 74, 62, BLOCK_COLORS[4].fill).setStrokeStyle(2, COLORS.ink, 0.12);
+    const label = this.add
+      .text(360, 276, "4", {
+        color: BLOCK_COLORS[4].text,
+        fontSize: "28px",
+        fontStyle: "900"
+      })
+      .setOrigin(0.5);
+    const block = this.add.container(0, 0, [falling, label]).setDepth(DEPTHS.board + 3);
     this.tweens.add({
-      targets: gear,
-      angle: 360,
-      duration: 10000,
+      targets: block,
+      y: 68,
+      yoyo: true,
       repeat: -1,
-      ease: "Linear"
+      duration: 900,
+      ease: "Sine.InOut"
     });
   }
 }

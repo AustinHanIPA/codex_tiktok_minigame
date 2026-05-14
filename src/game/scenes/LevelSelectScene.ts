@@ -11,7 +11,7 @@ export class LevelSelectScene extends Phaser.Scene {
 
   create(): void {
     drawToyBackground(this);
-    createScreenTitle(this, "选择关卡", "前 3 关快速上手，后面逐步组合机关");
+    createScreenTitle(this, "选择关卡", "每关用有限方块合成目标数字");
 
     const save = SaveManager.load();
     const startX = 220;
@@ -39,7 +39,7 @@ export class LevelSelectScene extends Phaser.Scene {
       });
 
       this.add
-        .text(x, y + 46, level.name, {
+        .text(x, y + 46, `${level.name} · ${level.targetValue}`, {
           color: unlocked ? "#65758b" : "#7e8b99",
           fontSize: "17px",
           fontStyle: "700",

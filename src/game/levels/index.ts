@@ -1,318 +1,169 @@
-import { COLORS } from "../utils/constants";
-import type { LevelConfig, StaticBodyConfig } from "../utils/types";
+import type { Difficulty, LevelConfig } from "../utils/types";
 
-const walls: StaticBodyConfig[] = [
-  { id: "left-rail", type: "rectangle", x: 28, y: 640, width: 56, height: 1280, color: COLORS.trackDark },
-  { id: "right-rail", type: "rectangle", x: 692, y: 640, width: 56, height: 1280, color: COLORS.trackDark },
-  { id: "top-rail", type: "rectangle", x: 360, y: 80, width: 664, height: 44, color: COLORS.trackDark }
-];
+const GRID_ROWS = 8;
+const GRID_COLS = 5;
+
+interface DominoLevelInput {
+  id: number;
+  name: string;
+  description: string;
+  difficulty: Difficulty;
+  targetValue: number;
+  chainValues: number[];
+  starSteps: { three: number; two: number; one: number };
+  nextBlocks?: number[];
+  extras?: Array<{ row: number; col: number; value: number }>;
+}
 
 export const LEVELS: LevelConfig[] = [
-  {
+  createDominoLevel({
     id: 1,
-    name: "滚动入门",
-    hint: "顺着斜坡滚到发光终点。",
+    name: "一触即发",
+    description: "把 2 放进中间缺口，看整列数字一路爆到 64。",
     difficulty: 1,
-    ballStart: { x: 170, y: 180 },
-    goal: { x: 566, y: 1034, radius: 48 },
-    timeLimit: 45,
-    starTimes: { three: 12, two: 22, one: 45 },
-    staticBodies: [
-      ...walls,
-      { id: "ramp-1", type: "rectangle", x: 260, y: 310, width: 390, height: 34, angle: 11 },
-      { id: "ramp-2", type: "rectangle", x: 468, y: 570, width: 430, height: 34, angle: -13 },
-      { id: "ramp-3", type: "rectangle", x: 292, y: 820, width: 430, height: 34, angle: 12 },
-      { id: "landing", type: "rectangle", x: 548, y: 1100, width: 230, height: 34, angle: -4 }
-    ],
-    mechanisms: []
-  },
-  {
+    targetValue: 64,
+    chainValues: [4, 8, 16, 32],
+    starSteps: { three: 1, two: 2, one: 4 },
+    extras: [
+      { row: 7, col: 4, value: 4 },
+      { row: 6, col: 4, value: 8 }
+    ]
+  }),
+  createDominoLevel({
     id: 2,
-    name: "点亮履带",
-    hint: "点击蓝色按钮，启动传送带。",
+    name: "暖场连爆",
+    description: "一颗 2 就能推倒 128，注意观察连续坍塌。",
     difficulty: 1,
-    ballStart: { x: 162, y: 180 },
-    goal: { x: 560, y: 1058, radius: 48 },
-    timeLimit: 50,
-    starTimes: { three: 15, two: 28, one: 50 },
-    staticBodies: [
-      ...walls,
-      { id: "ramp-1", type: "rectangle", x: 258, y: 305, width: 390, height: 34, angle: 11 },
-      { id: "flat-before-belt", type: "rectangle", x: 350, y: 560, width: 470, height: 34 },
-      { id: "ramp-after-belt", type: "rectangle", x: 468, y: 812, width: 430, height: 34, angle: -12 },
-      { id: "landing", type: "rectangle", x: 550, y: 1120, width: 220, height: 34 }
-    ],
-    mechanisms: [
-      { id: "start-belt", type: "button", x: 132, y: 520, targetIds: ["belt-1"], once: false, cooldown: 800 },
-      { id: "belt-1", type: "conveyor", x: 448, y: 520, width: 220, height: 28, speed: 7, direction: "right", active: false }
+    targetValue: 128,
+    chainValues: [4, 8, 16, 32, 64],
+    starSteps: { three: 1, two: 2, one: 5 },
+    extras: [
+      { row: 7, col: 3, value: 8 },
+      { row: 6, col: 3, value: 16 },
+      { row: 7, col: 4, value: 8 }
     ]
-  },
-  {
+  }),
+  createDominoLevel({
     id: 3,
-    name: "转盘坡道",
-    hint: "拖动黄色转盘，让球滚向下一层。",
-    difficulty: 1,
-    ballStart: { x: 162, y: 180 },
-    goal: { x: 160, y: 1060, radius: 48 },
-    timeLimit: 55,
-    starTimes: { three: 18, two: 32, one: 55 },
-    staticBodies: [
-      ...walls,
-      { id: "top-run", type: "rectangle", x: 258, y: 306, width: 390, height: 34, angle: 10 },
-      { id: "mid-catch", type: "rectangle", x: 500, y: 724, width: 330, height: 34, angle: -8 },
-      { id: "bottom-run", type: "rectangle", x: 310, y: 946, width: 420, height: 34, angle: 12 }
-    ],
-    mechanisms: [
-      {
-        id: "rotator-1",
-        type: "rotator",
-        x: 386,
-        y: 514,
-        width: 270,
-        height: 30,
-        angle: -8,
-        minAngle: -30,
-        maxAngle: 25,
-        controllable: true
-      }
+    name: "半屏爆破",
+    description: "从底部的 2 开始，连锁会一路点亮 256。",
+    difficulty: 2,
+    targetValue: 256,
+    chainValues: [4, 8, 16, 32, 64, 128],
+    starSteps: { three: 1, two: 3, one: 6 },
+    extras: [
+      { row: 7, col: 3, value: 16 },
+      { row: 6, col: 3, value: 32 },
+      { row: 5, col: 3, value: 64 }
     ]
-  },
-  {
+  }),
+  createDominoLevel({
     id: 4,
-    name: "拖动挡板",
-    hint: "拖动绿色挡板接住小球。",
+    name: "满列烟花",
+    description: "正确落点会触发 512 级别的多米诺合成。",
     difficulty: 2,
-    ballStart: { x: 546, y: 172 },
-    goal: { x: 556, y: 1056, radius: 48 },
-    timeLimit: 60,
-    starTimes: { three: 24, two: 40, one: 60 },
-    staticBodies: [
-      ...walls,
-      { id: "upper-ramp", type: "rectangle", x: 460, y: 306, width: 380, height: 34, angle: -12 },
-      { id: "lower-ramp", type: "rectangle", x: 460, y: 810, width: 430, height: 34, angle: -10 },
-      { id: "landing", type: "rectangle", x: 548, y: 1120, width: 220, height: 34 }
-    ],
-    mechanisms: [
-      {
-        id: "slider-1",
-        type: "slider",
-        x: 306,
-        y: 562,
-        width: 230,
-        height: 30,
-        axis: "x",
-        min: 210,
-        max: 510,
-        controllable: true
-      }
+    targetValue: 512,
+    chainValues: [4, 8, 16, 32, 64, 128, 256],
+    starSteps: { three: 1, two: 3, one: 7 },
+    extras: [
+      { row: 7, col: 4, value: 32 },
+      { row: 6, col: 4, value: 64 },
+      { row: 5, col: 4, value: 128 }
     ]
-  },
-  {
+  }),
+  createDominoLevel({
     id: 5,
-    name: "弹射起飞",
-    hint: "点击橙色弹射器给小球一个冲量。",
-    difficulty: 2,
-    ballStart: { x: 176, y: 180 },
-    goal: { x: 552, y: 1038, radius: 48 },
-    timeLimit: 60,
-    starTimes: { three: 22, two: 38, one: 60 },
-    staticBodies: [
-      ...walls,
-      { id: "top-ramp", type: "rectangle", x: 270, y: 300, width: 410, height: 34, angle: 10 },
-      { id: "launch-pad", type: "rectangle", x: 430, y: 604, width: 270, height: 34, angle: -4 },
-      { id: "catch-ramp", type: "rectangle", x: 430, y: 812, width: 420, height: 34, angle: -11 },
-      { id: "goal-pad", type: "rectangle", x: 550, y: 1100, width: 230, height: 34 }
-    ],
-    mechanisms: [
-      { id: "launcher-1", type: "launcher", x: 214, y: 574, forceX: 0.035, forceY: -0.07, cooldown: 900 }
+    name: "黄金冲线",
+    description: "一手触发 1024，发光方块会连续铺满视线。",
+    difficulty: 3,
+    targetValue: 1024,
+    chainValues: [4, 8, 16, 32, 64, 128, 256, 512],
+    starSteps: { three: 1, two: 4, one: 8 },
+    extras: [
+      { row: 7, col: 3, value: 64 },
+      { row: 6, col: 3, value: 128 },
+      { row: 5, col: 3, value: 256 }
     ]
-  },
-  {
+  }),
+  createDominoLevel({
     id: 6,
-    name: "按钮开门",
-    hint: "先开门，再让球进入下层通道。",
-    difficulty: 2,
-    ballStart: { x: 166, y: 180 },
-    goal: { x: 160, y: 1050, radius: 48 },
-    timeLimit: 65,
-    starTimes: { three: 28, two: 45, one: 65 },
-    staticBodies: [
-      ...walls,
-      { id: "top-run", type: "rectangle", x: 278, y: 310, width: 430, height: 34, angle: 10 },
-      { id: "door-catch", type: "rectangle", x: 492, y: 602, width: 280, height: 34 },
-      { id: "lower-run", type: "rectangle", x: 320, y: 844, width: 430, height: 34, angle: 12 },
-      { id: "goal-pad", type: "rectangle", x: 154, y: 1110, width: 230, height: 34 }
-    ],
-    mechanisms: [
-      { id: "door-button", type: "button", x: 580, y: 520, targetIds: ["door-1"], once: false },
-      {
-        id: "door-1",
-        type: "slider",
-        x: 356,
-        y: 602,
-        width: 32,
-        height: 170,
-        axis: "y",
-        min: 602,
-        max: 760,
-        controllable: false
-      }
+    name: "双塔预演",
+    description: "左侧主链先爆，右侧高阶方块强化视觉冲击。",
+    difficulty: 3,
+    targetValue: 512,
+    chainValues: [4, 8, 16, 32, 64, 128, 256],
+    starSteps: { three: 1, two: 4, one: 8 },
+    extras: [
+      { row: 7, col: 3, value: 4 },
+      { row: 6, col: 3, value: 8 },
+      { row: 5, col: 3, value: 16 },
+      { row: 7, col: 4, value: 64 },
+      { row: 6, col: 4, value: 128 }
     ]
-  },
-  {
+  }),
+  createDominoLevel({
     id: 7,
-    name: "连续传送",
-    hint: "传送带会持续推球，注意节奏。",
-    difficulty: 3,
-    ballStart: { x: 540, y: 180 },
-    goal: { x: 560, y: 1060, radius: 48 },
-    timeLimit: 70,
-    starTimes: { three: 32, two: 50, one: 70 },
-    staticBodies: [
-      ...walls,
-      { id: "top-run", type: "rectangle", x: 468, y: 312, width: 390, height: 34, angle: -10 },
-      { id: "mid-platform", type: "rectangle", x: 354, y: 570, width: 500, height: 34 },
-      { id: "drop-ramp", type: "rectangle", x: 464, y: 825, width: 410, height: 34, angle: -12 },
-      { id: "goal-pad", type: "rectangle", x: 552, y: 1118, width: 220, height: 34 }
-    ],
-    mechanisms: [
-      { id: "belt-1", type: "conveyor", x: 334, y: 532, width: 240, height: 28, speed: 6, direction: "left", active: true },
-      { id: "belt-2", type: "conveyor", x: 468, y: 786, width: 220, height: 28, speed: 6, direction: "right", active: true }
-    ]
-  },
-  {
-    id: 8,
-    name: "转盘弹射",
-    hint: "先调转盘，再用弹射器补速度。",
-    difficulty: 3,
-    ballStart: { x: 166, y: 178 },
-    goal: { x: 548, y: 1048, radius: 48 },
-    timeLimit: 75,
-    starTimes: { three: 36, two: 55, one: 75 },
-    staticBodies: [
-      ...walls,
-      { id: "top-run", type: "rectangle", x: 276, y: 308, width: 420, height: 34, angle: 10 },
-      { id: "launch-catch", type: "rectangle", x: 448, y: 690, width: 320, height: 34, angle: -8 },
-      { id: "goal-run", type: "rectangle", x: 504, y: 1002, width: 320, height: 34, angle: -6 }
-    ],
-    mechanisms: [
-      {
-        id: "rotator-1",
-        type: "rotator",
-        x: 390,
-        y: 502,
-        width: 285,
-        height: 30,
-        angle: -5,
-        minAngle: -25,
-        maxAngle: 28,
-        controllable: true
-      },
-      { id: "launcher-1", type: "launcher", x: 210, y: 640, forceX: 0.042, forceY: -0.065, cooldown: 850 }
-    ]
-  },
-  {
-    id: 9,
-    name: "选择通路",
-    hint: "拖挡板改变路径，按钮可以打开门。",
+    name: "高阶连锁",
+    description: "高级方块发光后继续合并，冲到 1024。",
     difficulty: 4,
-    ballStart: { x: 548, y: 178 },
-    goal: { x: 166, y: 1060, radius: 48 },
-    timeLimit: 80,
-    starTimes: { three: 42, two: 62, one: 80 },
-    staticBodies: [
-      ...walls,
-      { id: "top-run", type: "rectangle", x: 464, y: 306, width: 400, height: 34, angle: -10 },
-      { id: "mid-run", type: "rectangle", x: 320, y: 610, width: 430, height: 34, angle: 9 },
-      { id: "bottom-run", type: "rectangle", x: 294, y: 916, width: 440, height: 34, angle: 10 },
-      { id: "goal-pad", type: "rectangle", x: 164, y: 1120, width: 240, height: 34 }
-    ],
-    mechanisms: [
-      {
-        id: "slider-1",
-        type: "slider",
-        x: 420,
-        y: 460,
-        width: 230,
-        height: 30,
-        axis: "x",
-        min: 240,
-        max: 500,
-        controllable: true
-      },
-      { id: "door-button", type: "button", x: 572, y: 716, targetIds: ["door-1"], once: false },
-      {
-        id: "door-1",
-        type: "slider",
-        x: 292,
-        y: 770,
-        width: 34,
-        height: 160,
-        axis: "y",
-        min: 770,
-        max: 922,
-        controllable: false
-      }
+    targetValue: 1024,
+    chainValues: [4, 8, 16, 32, 64, 128, 256, 512],
+    starSteps: { three: 1, two: 4, one: 9 },
+    extras: [
+      { row: 7, col: 3, value: 16 },
+      { row: 6, col: 3, value: 32 },
+      { row: 5, col: 3, value: 64 },
+      { row: 4, col: 3, value: 128 }
     ]
-  },
-  {
-    id: 10,
-    name: "机关总装",
-    hint: "综合使用按钮、转盘、滑块、弹射器和传送带。",
+  }),
+  createDominoLevel({
+    id: 8,
+    name: "右侧火线",
+    description: "主链引爆后，右侧高阶塔让整屏都在闪。",
+    difficulty: 4,
+    targetValue: 1024,
+    chainValues: [4, 8, 16, 32, 64, 128, 256, 512],
+    starSteps: { three: 1, two: 5, one: 10 },
+    extras: [
+      { row: 7, col: 3, value: 32 },
+      { row: 6, col: 3, value: 64 },
+      { row: 5, col: 3, value: 128 },
+      { row: 4, col: 3, value: 256 },
+      { row: 7, col: 4, value: 32 }
+    ]
+  }),
+  createDominoLevel({
+    id: 9,
+    name: "全屏热浪",
+    description: "落下第一颗 2，整条数值阶梯会连炸到 1024。",
     difficulty: 5,
-    ballStart: { x: 164, y: 176 },
-    goal: { x: 556, y: 1064, radius: 48 },
-    timeLimit: 90,
-    starTimes: { three: 48, two: 70, one: 90 },
-    staticBodies: [
-      ...walls,
-      { id: "top-run", type: "rectangle", x: 284, y: 300, width: 420, height: 34, angle: 10 },
-      { id: "mid-catch", type: "rectangle", x: 478, y: 612, width: 320, height: 34, angle: -7 },
-      { id: "lower-run", type: "rectangle", x: 316, y: 868, width: 430, height: 34, angle: 12 },
-      { id: "goal-pad", type: "rectangle", x: 552, y: 1120, width: 230, height: 34 }
-    ],
-    mechanisms: [
-      { id: "belt-button", type: "button", x: 582, y: 492, targetIds: ["belt-1", "door-1"], once: false },
-      {
-        id: "rotator-1",
-        type: "rotator",
-        x: 392,
-        y: 474,
-        width: 285,
-        height: 30,
-        angle: -4,
-        minAngle: -28,
-        maxAngle: 26,
-        controllable: true
-      },
-      {
-        id: "slider-1",
-        type: "slider",
-        x: 290,
-        y: 708,
-        width: 225,
-        height: 30,
-        axis: "x",
-        min: 208,
-        max: 506,
-        controllable: true
-      },
-      {
-        id: "door-1",
-        type: "slider",
-        x: 520,
-        y: 840,
-        width: 34,
-        height: 170,
-        axis: "y",
-        min: 840,
-        max: 990,
-        controllable: false
-      },
-      { id: "belt-1", type: "conveyor", x: 432, y: 832, width: 210, height: 28, speed: 7, direction: "right", active: false },
-      { id: "launcher-1", type: "launcher", x: 198, y: 790, forceX: 0.04, forceY: -0.065, cooldown: 850 }
+    targetValue: 1024,
+    chainValues: [4, 8, 16, 32, 64, 128, 256, 512],
+    starSteps: { three: 1, two: 5, one: 11 },
+    extras: [
+      { row: 7, col: 3, value: 64 },
+      { row: 6, col: 3, value: 128 },
+      { row: 5, col: 3, value: 256 },
+      { row: 4, col: 3, value: 512 },
+      { row: 7, col: 4, value: 16 }
     ]
-  }
+  }),
+  createDominoLevel({
+    id: 10,
+    name: "终局烟火",
+    description: "最后一关只差一颗 2，触发最华丽的 1024 连锁。",
+    difficulty: 5,
+    targetValue: 1024,
+    chainValues: [4, 8, 16, 32, 64, 128, 256, 512],
+    starSteps: { three: 1, two: 5, one: 12 },
+    extras: [
+      { row: 7, col: 3, value: 128 },
+      { row: 6, col: 3, value: 256 },
+      { row: 5, col: 3, value: 512 },
+      { row: 7, col: 4, value: 64 },
+      { row: 6, col: 4, value: 128 }
+    ]
+  })
 ];
 
 export function getLevel(levelId: number): LevelConfig {
@@ -323,4 +174,29 @@ export function getLevel(levelId: number): LevelConfig {
   }
 
   return level;
+}
+
+function createDominoLevel(input: DominoLevelInput): LevelConfig {
+  const grid = Array.from({ length: GRID_ROWS }, () => Array.from({ length: GRID_COLS }, () => 0));
+
+  input.chainValues.forEach((value, index) => {
+    grid[GRID_ROWS - 1 - index][0] = value;
+  });
+
+  grid[GRID_ROWS - 1][1] = 2;
+
+  for (const extra of input.extras ?? []) {
+    grid[extra.row][extra.col] = extra.value;
+  }
+
+  return {
+    id: input.id,
+    name: input.name,
+    description: input.description,
+    difficulty: input.difficulty,
+    targetValue: input.targetValue,
+    initialGrid: grid,
+    starSteps: input.starSteps,
+    nextBlocks: input.nextBlocks ?? [2, 2, 4, 8]
+  };
 }

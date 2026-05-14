@@ -15,21 +15,21 @@ export class BootScene extends Phaser.Scene {
     void PlatformService.getInstance().login();
 
     this.add
-      .text(360, 560, "机械球球", {
+      .text(360, 560, "方块合合合", {
         color: "#263241",
         fontSize: "58px",
         fontStyle: "900"
       })
       .setOrigin(0.5);
     this.add
-      .text(360, 640, "加载机关中...", {
+      .text(360, 640, "准备棋盘中...", {
         color: "#65758b",
         fontSize: "26px",
         fontStyle: "700"
       })
       .setOrigin(0.5);
 
-    const orb = this.add.circle(360, 732, 22, COLORS.primary).setStrokeStyle(5, COLORS.ink);
+    const orb = this.add.rectangle(360, 732, 46, 46, COLORS.primary).setStrokeStyle(5, COLORS.ink);
     this.tweens.add({
       targets: orb,
       x: 438,
