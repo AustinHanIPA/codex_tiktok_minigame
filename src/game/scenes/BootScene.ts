@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import { SaveManager } from "../data/SaveManager";
+import { LEVELS } from "../levels";
 import { PlatformService } from "../platform/PlatformService";
 import { COLORS } from "../utils/constants";
 import { drawToyBackground } from "../ui/UiFactory";
@@ -12,7 +13,14 @@ export class BootScene extends Phaser.Scene {
   create(): void {
     drawToyBackground(this);
     SaveManager.load();
-    void PlatformService.getInstance().login();
+    const platform = PlatformService.getInstance();
+    const launchOptions = platform.getLaunchOptions();
+    void platform.login();
+
+    if (launchOptions.instant === "1") {
+      this.openLaunchScene(launchOptions);
+      return;
+    }
 
     this.add
       .text(360, 560, "方块合合合", {
@@ -37,7 +45,31 @@ export class BootScene extends Phaser.Scene {
       repeat: 2,
       duration: 280,
       ease: "Sine.InOut",
-      onComplete: () => this.scene.start("MenuScene")
+      onComplete: () => this.openLaunchScene(launchOptions)
     });
+  }
+
+  private openLaunchScene(launchOptions: Record<string, unknown>): void {
+    if (launchOptions.scene === "play") {
+      this.scene.start("PlayScene", { levelId: this.parseLevelId(launchOptions.level) });
+      return;
+    }
+
+    if (launchOptions.scene === "endless") {
+      this.scene.start("EndlessScene");
+      return;
+    }
+
+    this.scene.start("MenuScene");
+  }
+
+  private parseLevelId(value: unknown): number {
+    const numeric = Number(value);
+
+    if (!Number.isFinite(numeric)) {
+      return 1;
+    }
+
+    return Math.min(Math.max(Math.trunc(numeric), 1), LEVELS.length);
   }
 }

@@ -88,80 +88,88 @@ export const LEVELS: LevelConfig[] = [
   createDominoLevel({
     id: 6,
     name: "双塔预演",
-    description: "左侧主链先爆，右侧高阶方块强化视觉冲击。",
+    description: "左侧主链先爆，右侧辅助合并让连锁更长。",
     difficulty: 3,
     targetValue: 512,
     chainValues: [4, 8, 16, 32, 64, 128, 256],
-    starSteps: { three: 1, two: 4, one: 8 },
+    starSteps: { three: 1, two: 4, one: 10 },
+    nextBlocks: [2, 2, 4, 4, 8, 2, 4],
     extras: [
       { row: 7, col: 3, value: 4 },
       { row: 6, col: 3, value: 8 },
       { row: 5, col: 3, value: 16 },
-      { row: 7, col: 4, value: 64 },
-      { row: 6, col: 4, value: 128 }
+      { row: 7, col: 4, value: 32 },
+      { row: 6, col: 4, value: 64 }
     ]
   }),
   createDominoLevel({
     id: 7,
     name: "高阶连锁",
-    description: "高级方块发光后继续合并，冲到 1024。",
+    description: "高级方块发光后继续合并，冲到 1024！找准缺口。",
     difficulty: 4,
     targetValue: 1024,
     chainValues: [4, 8, 16, 32, 64, 128, 256, 512],
-    starSteps: { three: 1, two: 4, one: 9 },
+    starSteps: { three: 1, two: 5, one: 11 },
+    nextBlocks: [2, 2, 4, 4, 8, 8, 2, 4],
     extras: [
-      { row: 7, col: 3, value: 16 },
-      { row: 6, col: 3, value: 32 },
-      { row: 5, col: 3, value: 64 },
-      { row: 4, col: 3, value: 128 }
+      { row: 7, col: 3, value: 8 },
+      { row: 6, col: 3, value: 16 },
+      { row: 5, col: 3, value: 32 },
+      { row: 4, col: 3, value: 64 },
+      { row: 7, col: 4, value: 128 }
     ]
   }),
   createDominoLevel({
     id: 8,
     name: "右侧火线",
-    description: "主链引爆后，右侧高阶塔让整屏都在闪。",
+    description: "主链引爆后，右侧辅助塔合并让整屏都在闪。",
     difficulty: 4,
     targetValue: 1024,
     chainValues: [4, 8, 16, 32, 64, 128, 256, 512],
-    starSteps: { three: 1, two: 5, one: 10 },
+    starSteps: { three: 2, two: 5, one: 12 },
+    nextBlocks: [2, 2, 4, 4, 8, 8, 16, 2, 4],
     extras: [
-      { row: 7, col: 3, value: 32 },
-      { row: 6, col: 3, value: 64 },
-      { row: 5, col: 3, value: 128 },
-      { row: 4, col: 3, value: 256 },
-      { row: 7, col: 4, value: 32 }
+      { row: 7, col: 3, value: 16 },
+      { row: 6, col: 3, value: 32 },
+      { row: 5, col: 3, value: 64 },
+      { row: 4, col: 3, value: 128 },
+      { row: 7, col: 4, value: 256 }
     ]
   }),
   createDominoLevel({
     id: 9,
     name: "全屏热浪",
-    description: "落下第一颗 2，整条数值阶梯会连炸到 1024。",
+    description: "整条数值阶梯就差一颗 2，找到正确落点即可连炸到 1024。",
     difficulty: 5,
     targetValue: 1024,
     chainValues: [4, 8, 16, 32, 64, 128, 256, 512],
-    starSteps: { three: 1, two: 5, one: 11 },
+    starSteps: { three: 1, two: 6, one: 13 },
+    nextBlocks: [2, 2, 4, 4, 8, 8, 16, 2, 4, 2],
     extras: [
-      { row: 7, col: 3, value: 64 },
-      { row: 6, col: 3, value: 128 },
-      { row: 5, col: 3, value: 256 },
-      { row: 4, col: 3, value: 512 },
-      { row: 7, col: 4, value: 16 }
+      { row: 7, col: 3, value: 32 },
+      { row: 6, col: 3, value: 64 },
+      { row: 5, col: 3, value: 128 },
+      { row: 4, col: 3, value: 256 },
+      { row: 7, col: 4, value: 16 },
+      { row: 6, col: 4, value: 32 }
     ]
   }),
   createDominoLevel({
     id: 10,
     name: "终局烟火",
-    description: "最后一关只差一颗 2，触发最华丽的 1024 连锁。",
+    description: "最后一关只差一颗 2，触发最华丽的全屏 1024 连锁！",
     difficulty: 5,
     targetValue: 1024,
     chainValues: [4, 8, 16, 32, 64, 128, 256, 512],
-    starSteps: { three: 1, two: 5, one: 12 },
+    starSteps: { three: 1, two: 6, one: 14 },
+    nextBlocks: [2, 2, 4, 4, 8, 8, 16, 32, 2, 4, 2],
     extras: [
-      { row: 7, col: 3, value: 128 },
-      { row: 6, col: 3, value: 256 },
-      { row: 5, col: 3, value: 512 },
-      { row: 7, col: 4, value: 64 },
-      { row: 6, col: 4, value: 128 }
+      { row: 7, col: 3, value: 64 },
+      { row: 6, col: 3, value: 128 },
+      { row: 5, col: 3, value: 256 },
+      { row: 4, col: 3, value: 512 },
+      { row: 7, col: 4, value: 32 },
+      { row: 6, col: 4, value: 64 }
     ]
   })
 ];

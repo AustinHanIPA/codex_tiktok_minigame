@@ -2,7 +2,7 @@ import Phaser from "phaser";
 import { EventTracker } from "../data/EventTracker";
 import { SaveManager } from "../data/SaveManager";
 import { PlatformService } from "../platform/PlatformService";
-import { BLOCK_COLORS, COLORS, DEPTHS } from "../utils/constants";
+import { BLOCK_COLORS, COLORS, DEPTHS, GAME_HEIGHT, GAME_WIDTH } from "../utils/constants";
 import { createButton, createScreenTitle, drawToyBackground } from "../ui/UiFactory";
 
 export class MenuScene extends Phaser.Scene {
@@ -59,7 +59,7 @@ export class MenuScene extends Phaser.Scene {
   private openSettings(): void {
     const save = SaveManager.load();
     const overlayObjects: Phaser.GameObjects.GameObject[] = [];
-    const shade = this.add.rectangle(360, 640, 720, 1280, 0x101722, 0.45).setInteractive().setDepth(DEPTHS.modal);
+    const shade = this.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0x101722, 0.45).setInteractive().setDepth(DEPTHS.modal);
     const panel = this.add.rectangle(360, 640, 500, 390, COLORS.panel).setStrokeStyle(4, COLORS.ink).setDepth(DEPTHS.modal + 1);
     const title = this.add
       .text(360, 500, "设置", {
@@ -86,6 +86,10 @@ export class MenuScene extends Phaser.Scene {
         () => {
           save.settings[key] = !save.settings[key];
           SaveManager.setSettings(save.settings);
+          EventTracker.track("setting_change", {
+            sound: save.settings.sound,
+            vibration: save.settings.vibration
+          });
           closeOverlay();
           this.openSettings();
         },

@@ -1,3 +1,5 @@
+import { SaveManager } from "../data/SaveManager";
+
 export type PlatformType = "browser" | "douyin";
 
 export class PlatformService {
@@ -40,17 +42,42 @@ export class PlatformService {
   }
 
   vibrateShort(): void {
+    if (!this.canVibrate()) {
+      return;
+    }
+
     console.info(`[platform:${this.platform}] vibrateShort`);
     window.navigator.vibrate?.(20);
   }
 
   getLaunchOptions(): Record<string, unknown> {
-    console.info(`[platform:${this.platform}] getLaunchOptions`);
-    return {};
+    const options = this.readBrowserLaunchOptions();
+    console.info(`[platform:${this.platform}] getLaunchOptions`, options);
+    return options;
   }
 
   async login(): Promise<{ anonymous: boolean }> {
     console.info(`[platform:${this.platform}] login`);
     return { anonymous: true };
+  }
+
+  private canVibrate(): boolean {
+    if (typeof window === "undefined") {
+      return false;
+    }
+
+    try {
+      return SaveManager.load().settings.vibration;
+    } catch {
+      return true;
+    }
+  }
+
+  private readBrowserLaunchOptions(): Record<string, string> {
+    if (typeof window === "undefined") {
+      return {};
+    }
+
+    return Object.fromEntries(new URLSearchParams(window.location.search).entries());
   }
 }

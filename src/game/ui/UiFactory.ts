@@ -1,5 +1,6 @@
 import type Phaser from "phaser";
-import { COLORS, DEPTHS } from "../utils/constants";
+import { SoundService } from "../audio/SoundService";
+import { COLORS, DEPTHS, GAME_HEIGHT, GAME_WIDTH } from "../utils/constants";
 
 interface ButtonOptions {
   width?: number;
@@ -44,6 +45,7 @@ export function createButton(
   if (!options.disabled) {
     button.setInteractive({ useHandCursor: true });
     button.on("pointerdown", () => {
+      SoundService.play("click");
       scene.tweens.add({
         targets: button,
         scale: 0.96,
@@ -94,7 +96,7 @@ export function drawToyBackground(scene: Phaser.Scene): void {
     COLORS.backgroundBottom,
     1
   );
-  graphics.fillRect(0, 0, 720, 1280);
+  graphics.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
 
   graphics.fillStyle(0xffffff, 0.5);
   for (let y = 120; y < 1180; y += 120) {
